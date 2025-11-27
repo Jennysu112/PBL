@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>呼吸系統解剖病理分析 - 蘇筠絜</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 1. 全局設定 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap');
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e293b; /* 深色背景 */
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 2. 投影片容器 */
+        #slide-deck {
+            width: 1280px;
+            height: 720px;
+            background-color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* 3. 每一頁的通用樣式 */
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 40px 60px 70px 60px; /* 調整 Padding 避免文字貼邊 */
+            flex-direction: column;
+            background: white;
+        }
+        .slide.active { display: flex; }
+
+        /* 裝飾線條 */
+        .accent-bar {
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 12px;
+            background: linear-gradient(to bottom, #0f172a, #334155);
+        }
+        .page-number {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            color: #94a3b8;
+            font-size: 16px;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        /* 4. 排版元件 */
+        h1 { font-size: 52px; color: #0f172a; margin: 0 0 15px 0; line-height: 1.2; }
+        h2 { font-size: 38px; color: #1e293b; margin: 0 0 25px 0; border-bottom: 3px solid #e2e8f0; padding-bottom: 10px; }
+        h3 { font-size: 24px; color: #334155; margin: 0 0 10px 0; font-weight: bold; }
+        
+        /* 優化文字大小與行距，避免溢出 */
+        p, li { 
+            font-size: 19px; 
+            color: #475569; 
+            line-height: 1.5; 
+            margin-bottom: 8px; 
+        }
+        strong { color: #b91c1c; font-weight: 700; }
+        
+        .col-2 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 40px; 
+            height: 100%; 
+            overflow: hidden; /* 防止內容撐開容器 */
+        }
+        .v-center { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            height: 100%;
+        }
+        
+        /* 卡片樣式 */
+        .card {
+            background: #f8fafc;
+            border-left: 6px solid #94a3b8;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .card-red { border-left-color: #ef4444; background: #fef2f2; }
+        .card-blue { border-left-color: #3b82f6; background: #eff6ff; }
+        .card-green { border-left-color: #10b981; background: #ecfdf5; }
+        .card-brown { border-left-color: #8d6e63; background: #efebe9; }
+
+        /* 5. 視覺化圖表 */
+        .diagram-box {
+            width: 100%;
+            height: 100%;
+            max-height: 450px;
+            background: #fff;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            /* border: 1px solid #e2e8f0; 移除邊框讓圖更乾淨 */
+        }
+        
+        /* 6. 測驗與列表 */
+        .quiz-option {
+            display: block; width: 100%; padding: 12px 20px; margin: 8px 0;
+            background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 10px;
+            font-size: 20px; cursor: pointer; text-align: left; transition: all 0.2s;
+        }
+        .quiz-option:hover { background: #e2e8f0; }
+        .quiz-option.correct { background: #dcfce7; border-color: #22c55e; color: #14532d; }
+        .quiz-option.wrong { background: #fee2e2; border-color: #ef4444; color: #7f1d1d; }
+        
+        .explanation {
+            margin-top: 15px; padding: 15px; background: #fffbeb; border-left: 5px solid #f59e0b; display: none; font-size: 18px;
+        }
+
+        .ref-list { height: 480px; overflow-y: auto; padding-right: 10px; }
+        .ref-list li { font-size: 15px; margin-bottom: 10px; color: #64748b; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
+
+        /* 控制按鈕 */
+        .controls {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 20px; z-index: 100;
+        }
+        .btn {
+            background: rgba(15, 23, 42, 0.9); color: white; border: none;
+            padding: 8px 25px; border-radius: 30px; cursor: pointer; font-size: 16px;
+            transition: background 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn:hover { background: #0f172a; transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* 表格優化 */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f1f5f9; color: #0f172a; padding: 12px; text-align: left; border-bottom: 3px solid #cbd5e1; font-size: 20px; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 19px; vertical-align: top; }
+
+    </style>
+</head>
+<body>
+
+<div id="slide-deck">
+    <div class="accent-bar"></div>
+
+    <!-- Slide 1: Title -->
+    <div class="slide active">
+        <div class="v-center" style="padding-left: 40px;">
+            <div style="color: #3b82f6; font-size: 80px; margin-bottom: 20px;"><i class="fa-solid fa-lungs"></i></div>
+            <h1>呼吸系統解剖病理分析</h1>
+            <p style="font-size: 32px; color: #64748b; margin-top: 0;">以李剛民先生教案為例：<br>從呼吸器官構造解析 COPD 之症狀機制</p>
+            <div style="margin-top: 50px; border-top: 1px solid #cbd5e1; padding-top: 20px; width: 60%;">
+                <p style="font-size: 18px; color: #94a3b8;">報告人：蘇筠絜 | 日期：2025年11月26日</p>
+            </div>
+        </div>
+        <div class="page-number">1 / 11</div>
+    </div>
+
+    <!-- Slide 2: Motivation -->
+    <div class="slide">
+        <h2>查詢動機：病史的時間軸矛盾</h2>
+        <div class="col-2">
+            <div class="v-center">
+                <div class="card card-blue">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> 病程一：多年咳痰</h3>
+                    <ul>
+                        <li>李先生抽菸 40 年。</li>
+                        <li>即使戒菸 5 年，痰液症狀依然持續。</li>
+                        <li><strong>暗示：</strong> 呼吸道發生了不可逆的早期結構重塑。</li>
+                    </ul>
+                </div>
+                <div class="card card-red">
+                    <h3><i class="fa-solid fa-person-running"></i> 病程二：近半年氣喘</h3>
+                    <ul>
+                        <li>活動時才明顯感到喘 (Dyspnea)。</li>
+                        <li>DLCO 下降 (氣體交換能力變差)。</li>
+                        <li><strong>暗示：</strong> 肺實質破壞累積跨過了代償閥值。</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 10px; font-style: italic; color: #64748b; font-size: 18px;">我們將透過解剖分區，解釋這兩個症狀為何出現時間不同。</p>
+            </div>
+            <div class="diagram-box">
+                <!-- SVG: Timeline Conflict -->
+                <svg viewBox="0 0 400 300" width="100%" height="100%">
+                    <!-- Timeline Line -->
+                    <line x1="50" y1="150" x2="350" y2="150" stroke="#cbd5e1" stroke-width="4" />
+                    <polygon points="350,150 340,145 340,155" fill="#cbd5e1" />
+                    
+                    <!-- Point 1: Chronic -->
+                    <circle cx="100" cy="150" r="8" fill="#3b82f6" />
+                    <text x="100" y="130" text-anchor="middle" fill="#3b82f6" font-weight="bold" font-size="14">多年累積</text>
+                    <text x="100" y="180" text-anchor="middle" fill="#1e293b" font-size="14">導氣區病變 (痰)</text>
+                    
+                    <!-- Point 2: Recent -->
+                    <circle cx="300" cy="150" r="8" fill="#ef4444" />
+                    <text x="300" y="130" text-anchor="middle" fill="#ef4444" font-weight="bold" font-size="14">近半年惡化</text>
+                    <text x="300" y="180" text-anchor="middle" fill="#1e293b" font-size="14">呼吸區病變 (喘)</text>
+                    
+                    <!-- Threshold Line -->
+                    <line x1="250" y1="50" x2="250" y2="250" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5" />
+                    <text x="255" y="240" fill="#94a3b8" font-size="12">症狀閥值</text>
+                </svg>
+            </div>
+        </div>
+        <div class="page-number">2 / 11</div>
+    </div>
+
+    <!-- Slide 3: Anatomy Overview (Refined Tree) -->
+    <div class="slide">
+        <h2>解剖分區概論：樹枝與樹葉</h2>
+        <div class="col-2">
+            <div class="v-center">
+                <div class="card card-brown">
+                    <h3 style="color: #5d4037;">1. 導氣區 (Conducting Zone)</h3>
+                    <p><strong>比喻：樹幹與樹枝</strong></p>
+                    <ul>
+                        <li><strong>範圍：第 0-16 級</strong> (氣管 $\rightarrow$ 終末細支氣管)</li>
+                        <li>特徵：有軟骨、纖毛上皮</li>
+                        <li>功能：傳送氣體、清潔異物</li>
+                        <li><strong>對應症狀：咳痰</strong></li>
+                    </ul>
+                </div>
+                <div class="card card-green">
+                    <h3 style="color: #047857;">2. 呼吸區 (Respiratory Zone)</h3>
+                    <p><strong>比喻：茂密樹葉</strong></p>
+                    <ul>
+                        <li><strong>範圍：第 17-23 級</strong> (呼吸性細支氣管 $\rightarrow$ 肺泡)</li>
+                        <li>特徵：無軟骨、薄壁</li>
+                        <li>功能：氣體交換 (表面積 ~75 m²)</li>
+                        <li><strong>對應症狀：呼吸困難</strong></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="diagram-box">
+                <!-- Refined SVG Tree Diagram -->
+                <svg viewBox="0 0 400 400" width="100%" height="100%">
+                    <defs>
+                        <!-- Leaf Cluster Definition -->
+                        <g id="leaf-cluster">
+                            <circle cx="0" cy="0" r="25" fill="#10b981" opacity="0.9"/>
+                            <circle cx="20" cy="-10" r="20" fill="#34d399" opacity="0.8"/>
+                            <circle cx="-20" cy="-5" r="22" fill="#059669" opacity="0.8"/>
+                            <circle cx="0" cy="-25" r="25" fill="#10b981" opacity="0.9"/>
+                        </g>
+                    </defs>
+                    
+                    <!-- Trunk & Branches (Conducting Zone) - Brown -->
+                    <path d="M200,400 L200,250" stroke="#8d6e63" stroke-width="20" stroke-linecap="round" />
+                    <!-- Left Branch -->
+                    <path d="M200,250 Q200,180 120,140" stroke="#8d6e63" stroke-width="12" fill="none" stroke-linecap="round"/>
+                    <!-- Right Branch -->
+                    <path d="M200,250 Q200,180 280,140" stroke="#8d6e63" stroke-width="12" fill="none" stroke-linecap="round"/>
+                    <!-- Center Branch -->
+                    <path d="M200,220 L200,100" stroke="#8d6e63" stroke-width="10" fill="none" stroke-linecap="round"/>
+
+                    <!-- Leaves (Respiratory Zone) - Green Clusters -->
+                    <use href="#leaf-cluster" x="120" y="140" />
+                    <use href="#leaf-cluster" x="280" y="140" />
+                    <use href="#leaf-cluster" x="200" y="100" />
+                    <use href="#leaf-cluster" x="160" y="80" transform="scale(0.8)" />
+                    <use href="#leaf-cluster" x="240" y="80" transform="scale(0.8)" />
+
+                    <!-- Labels with Lines -->
+                    <line x1="200" y1="300" x2="280" y2="300" stroke="#5d4037" stroke-width="2" stroke-dasharray="4"/>
+                    <rect x="280" y="285" width="90" height="30" rx="5" fill="#8d6e63" />
+                    <text x="325" y="305" text-anchor="middle" fill="white" font-size="14" font-weight="bold">導氣區</text>
+
+                    <line x1="100" y1="120" x2="40" y2="120" stroke="#047857" stroke-width="2" stroke-dasharray="4"/>
+                    <rect x="-10" y="105" width="90" height="30" rx="5" fill="#10b981" transform="translate(20,0)"/>
+                    <text x="55" y="125" text-anchor="middle" fill="white" font-size="14" font-weight="bold">呼吸區</text>
+                </svg>
+            </div>
+        </div>
+        <div class="page-number">3 / 11</div>
+    </div>
+
+    <!-- Slide 4: Respiratory Membrane -->
+    <div class="slide">
+        <h2>呼吸膜解剖構造：氣體交換的關鍵</h2>
+        <div class="col-2">
+            <div class="v-center">
+                <p><strong>位置：</strong> 肺泡壁與微血管之間。</p>
+                <p><strong>總厚度：</strong> 僅 0.5 - 1.0 μm (高效擴散的基礎)。</p>
+                <div class="card card-blue">
+                    <h3>三層關鍵結構 (Three Layers)</h3>
+                    <ol style="padding-left: 25px;">
+                        <li style="margin-bottom: 15px;">
+                            <strong>肺泡上皮層 (Alveolar Epithelium)</strong>
+                            <br>主要是 <strong>Type I pneumocyte</strong> (扁平細胞)，覆蓋 95% 表面積。
+                        </li>
+                        <li style="margin-bottom: 15px;">
+                            <strong>融合基底膜 (Fused Basement Membrane)</strong>
+                            <br>上皮與內皮的基底膜融合，含膠原與彈性纖維。
+                        </li>
+                        <li>
+                            <strong>微血管內皮層 (Capillary Endothelium)</strong>
+                            <br>連續型內皮，無孔隙，厚度極薄。
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            <div class="diagram-box">
+                <!-- SVG Respiratory Membrane - Improved Detail -->
+                <svg viewBox="0 0 400 300" width="100%" height="100%">
+                    <!-- Background -->
+                    <rect x="0" y="0" width="400" height="120" fill="#e0f2fe" opacity="0.3"/> <!-- Alveolus -->
+                    <text x="200" y="30" text-anchor="middle" fill="#0369a1" font-weight="bold" font-size="16">肺泡腔 (Alveolus)</text>
+                    
+                    <!-- 1. Epithelium -->
+                    <path d="M20,100 Q200,95 380,100 L380,120 Q200,115 20,120 Z" fill="#fed7aa" stroke="#f97316" stroke-width="1"/>
+                    <text x="330" y="115" text-anchor="end" font-size="12" fill="#9a3412">Type I 上皮</text>
+                    
+                    <!-- 2. Basement Membrane -->
+                    <path d="M20,120 Q200,115 380,120 L380,135 Q200,130 20,135 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+                    <text x="330" y="132" text-anchor="end" font-size="12" fill="#475569">基底膜</text>
+                    
+                    <!-- 3. Endothelium -->
+                    <path d="M20,135 Q200,130 380,135 L380,155 Q200,150 20,155 Z" fill="#fecaca" stroke="#ef4444" stroke-width="1"/>
+                    <text x="330" y="150" text-anchor="end" font-size="12" fill="#991b1b">內皮細胞</text>
+                    
+                    <!-- Capillary Lumen -->
+                    <path d="M20,155 Q200,150 380,155 L380,250 Q200,260 20,250 Z" fill="#fee2e2" opacity="0.5"/>
+                    <text x="200" y="220" text-anchor="middle" fill="#b91c1c" font-weight="bold" font-size="16">微血管腔 (Capillary)</text>
+                    
+                    <!-- RBCs -->
+                    <ellipse cx="120" cy="200" rx="30" ry="15" fill="#ef4444" opacity="0.8" />
+                    <ellipse cx="280" cy="200" rx="30" ry="15" fill="#ef4444" opacity="0.8" />
+
+                    <!-- O2 Diffusion Arrow -->
+                    <defs>
+                        <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
+                        </marker>
+                    </defs>
+                    <line x1="120" y1="40" x2="120" y2="180" stroke="#2563eb" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow-blue)"/>
+                    <text x="130" y="80" fill="#2563eb" font-weight="bold">O₂ 擴散</text>
+                </svg>
+            </div>
+        </div>
+        <div class="page-number">4 / 11</div>
+    </div>
+
+    <!-- Slide 5: Conducting Zone Pathology (Mucus Fix) -->
+    <div class="slide">
+        <h2>導氣區病變：為何「痰多好幾年」？</h2>
+        <div class="col-2">
+            <div class="diagram-box">
+                <!-- Refined Bronchus Cross Section -->
+                <svg viewBox="0 0 300 300" width="100%" height="100%">
+                    <!-- 1. Outer Muscle/Cartilage -->
+                    <circle cx="150" cy="150" r="130" fill="#fee2e2" stroke="#ef4444" stroke-width="3"/>
+                    
+                    <!-- 2. Submucosa (Thickened) -->
+                    <circle cx="150" cy="150" r="110" fill="#ffedd5" stroke="#f97316" stroke-width="1"/>
+                    
+                    <!-- Glands (In Submucosa) - Pink Clusters -->
+                    <g fill="#ec4899" opacity="0.6">
+                        <circle cx="150" cy="60" r="15"/>
+                        <circle cx="170" cy="70" r="12"/>
+                        <circle cx="230" cy="150" r="15"/>
+                        <circle cx="220" cy="170" r="12"/>
+                        <circle cx="150" cy="240" r="15"/>
+                        <circle cx="70" cy="150" r="15"/>
+                    </g>
+                    <text x="150" y="130" text-anchor="middle" font-size="12" fill="#be123c" font-weight="bold">1. 腺體肥大 (壁內)</text>
+
+                    <!-- 3. Lumen Boundary (Epithelium) -->
+                    <circle cx="150" cy="150" r="60" fill="#fff" stroke="#94a3b8" stroke-width="3"/>
+                    
+                    <!-- 4. Mucus (Inside Lumen) - Yellow Blob -->
+                    <path d="M110,150 Q150,110 190,150 Q170,190 130,180 Z" fill="#fbbf24" opacity="0.9" stroke="#b45309" stroke-width="2"/>
+                    <text x="150" y="165" text-anchor="middle" font-size="14" fill="#78350f" font-weight="bold">2. 黏液阻塞 (腔內)</text>
+                    
+                    <!-- Labels -->
+                    <line x1="150" y1="60" x2="150" y2="20" stroke="#be123c" stroke-width="2"/>
+                    <text x="150" y="15" text-anchor="middle" font-size="14" fill="#be123c">Reid Index > 0.5</text>
+                </svg>
+            </div>
+            <div class="v-center">
+                <h3>慢性支氣管炎 (Chronic Bronchitis)</h3>
+                <p>長期的防禦性重塑導致：<strong>黏液製造 > 清除</strong></p>
+                <ul>
+                    <li style="margin-bottom: 20px;">
+                        <strong>工廠變大 (Glandular Hypertrophy)</strong>
+                        <br>黏液腺增生，<strong>Reid Index > 0.5</strong> (正常 < 0.4)。
+                        <br><span style="font-size: 18px; color: #64748b;">位置：管壁內的黏膜下層增厚。</span>
+                    </li>
+                    <li>
+                        <strong>運送帶失效 (Squamous Metaplasia)</strong>
+                        <br>纖毛柱狀上皮轉化為鱗狀上皮，導致<strong>纖毛脫落</strong>。
+                        <br><span style="font-size: 18px; color: #64748b;">結果：黏液堆積在管腔中央，無法排出。</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-number">5 / 11</div>
+    </div>
+
+    <!-- Slide 6: Respiratory Zone 1 (Area) -->
+    <div class="slide">
+        <h2>呼吸區病變 (1)：交換面積喪失</h2>
+        <div class="col-2">
+            <div class="v-center">
+                <h3>肺氣腫 (Emphysema)</h3>
+                <p>蛋白酶消化了<strong>肺泡間隔 (Septa)</strong>，多個小肺泡融合成無功能的大囊泡。</p>
+                
+                <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+                    <span style="font-family: serif; font-size: 24px; color: #1e40af;">V<sub>gas</sub> ∝ <strong style="color: #b91c1c; font-size: 32px;">A</strong> × (D × ΔP) / T</span>
+                    <p style="font-size: 16px; margin-top: 10px;">(Fick's Law: 交換速率正比於表面積 A)</p>
+                </div>
+
+                <h3>為何是這半年才喘？ (閥值效應)</h3>
+                <p>肺臟有巨大的<strong>解剖儲備量</strong>。病變累積數十年，直到半年前表面積降至臨界點以下，不足以支撐活動需求，才出現症狀。</p>
+            </div>
+            <div class="diagram-box">
+                <!-- Refined Emphysema SVG -->
+                <svg viewBox="0 0 400 250" width="100%" height="100%">
+                    <!-- Normal Side -->
+                    <g transform="translate(20, 40)">
+                        <rect x="0" y="0" width="150" height="150" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5"/>
+                        <text x="75" y="-15" text-anchor="middle" fill="#3b82f6" font-weight="bold">正常肺泡</text>
+                        <!-- Honeycomb pattern -->
+                        <circle cx="40" cy="40" r="25" fill="#dbeafe" stroke="#3b82f6"/>
+                        <circle cx="110" cy="40" r="25" fill="#dbeafe" stroke="#3b82f6"/>
+                        <circle cx="40" cy="110" r="25" fill="#dbeafe" stroke="#3b82f6"/>
+                        <circle cx="110" cy="110" r="25" fill="#dbeafe" stroke="#3b82f6"/>
+                        <text x="75" y="180" text-anchor="middle" font-size="14" fill="#64748b">表面積大 (75 m²)</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <path d="M190,115 L210,115" stroke="#94a3b8" stroke-width="4" marker-end="url(#arrow-gray)"/>
+                    <defs><marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" /></marker></defs>
+
+                    <!-- Emphysema Side -->
+                    <g transform="translate(230, 40)">
+                        <rect x="0" y="0" width="150" height="150" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="5"/>
+                        <text x="75" y="-15" text-anchor="middle" fill="#ef4444" font-weight="bold">肺氣腫</text>
+                        <!-- Large Blob -->
+                        <path d="M20,40 Q75,10 130,40 Q140,110 130,130 Q75,140 20,130 Q10,80 20,40" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+                        <text x="75" y="85" text-anchor="middle" font-size="12" fill="#b91c1c">間隔斷裂</text>
+                        <text x="75" y="180" text-anchor="middle" font-size="14" fill="#b91c1c" font-weight="bold">表面積 A ↓↓</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+        <div class="page-number">6 / 11</div>
+    </div>
+
+    <!-- Slide 7: Respiratory Zone 2 (Traction) -->
+    <div class="slide">
+        <h2>呼吸區病變 (2)：徑向牽引力喪失</h2>
+        <div class="col-2">
+            <div class="diagram-box">
+                <!-- Traction SVG - Visualizing Springs -->
+                <svg viewBox="0 0 300 300" width="100%" height="100%">
+                    <!-- Central Airway -->
+                    <circle cx="150" cy="150" r="60" fill="#fff" stroke="#475569" stroke-width="4"/>
+                    <text x="150" y="155" text-anchor="middle" font-size="14" font-weight="bold" fill="#475569">細支氣管</text>
+                    
+                    <!-- Broken Springs (Red) -->
+                    <line x1="210" y1="150" x2="280" y2="150" stroke="#ef4444" stroke-width="3" stroke-dasharray="5 5"/>
+                    <text x="250" y="140" text-anchor="middle" font-size="12" fill="#ef4444">斷裂</text>
+                    
+                    <line x1="90" y1="150" x2="20" y2="150" stroke="#ef4444" stroke-width="3" stroke-dasharray="5 5"/>
+                    
+                    <line x1="150" y1="90" x2="150" y2="20" stroke="#ef4444" stroke-width="3" stroke-dasharray="5 5"/>
+                    
+                    <line x1="150" y1="210" x2="150" y2="280" stroke="#ef4444" stroke-width="3" stroke-dasharray="5 5"/>
+                    
+                    <!-- Force Arrows (Inward Collapse) -->
+                    <path d="M230,150 L215,150" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow-black)"/>
+                    <path d="M70,150 L85,150" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow-black)"/>
+                    
+                    <defs><marker id="arrow-black" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0f172a" /></marker></defs>
+
+                    <text x="150" y="295" text-anchor="middle" font-size="16" font-weight="bold" fill="#b91c1c">失去拉力 = 氣道塌陷</text>
+                </svg>
+            </div>
+            <div class="v-center">
+                <h3>解剖力學的崩解</h3>
+                <p>正常肺間質富含<strong>彈性纖維</strong>，像橡皮筋一樣向外拉住氣道 (Radial Traction)。</p>
+                <ul>
+                    <li style="margin-bottom: 15px;">
+                        <strong>動態塌陷 (Dynamic Collapse)</strong>
+                        <br>呼氣時，失去拉力的氣道被胸內壓壓扁。
+                    </li>
+                    <li>
+                        <strong>氣體滯留 (Air Trapping)</strong>
+                        <br>空氣吸得進去，出不來 $\rightarrow$ 導致<strong>肺過度充氣</strong>。
+                    </li>
+                </ul>
+                <p class="card card-red"><strong>結果：</strong> 呼吸肌處於力學劣勢，吸氣極度費力。</p>
+            </div>
+        </div>
+        <div class="page-number">7 / 11</div>
+    </div>
+
+    <!-- Slide 8: Summary Flowchart -->
+    <div class="slide">
+        <h2>總結：COPD 解剖病理機制</h2>
+        <div class="diagram-box" style="align-items: flex-start; padding-top: 20px; background: #f8fafc;">
+            <!-- Flowchart SVG -->
+            <svg viewBox="0 0 900 400" width="100%" height="100%">
+                <defs>
+                    <marker id="arrow-flow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+                    </marker>
+                </defs>
+                
+                <!-- Root Cause -->
+                <rect x="50" y="180" width="120" height="40" rx="5" fill="#94a3b8" stroke="#475569"/>
+                <text x="110" y="205" text-anchor="middle" fill="white" font-weight="bold">長期菸害</text>
+
+                <!-- Split -->
+                <path d="M170,200 L220,200 L220,100 L260,100" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow-flow)"/>
+                <path d="M170,200 L220,200 L220,300 L260,300" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow-flow)"/>
+
+                <!-- Upper Path (Bronchitis) -->
+                <rect x="260" y="80" width="140" height="40" rx="5" fill="#dbeafe" stroke="#2563eb"/>
+                <text x="330" y="105" text-anchor="middle" fill="#1e40af" font-weight="bold">導氣區病變</text>
+                
+                <line x1="400" y1="100" x2="460" y2="100" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-flow)"/>
+                
+                <rect x="460" y="80" width="160" height="40" rx="5" fill="#fff" stroke="#cbd5e1"/>
+                <text x="540" y="105" text-anchor="middle" fill="#475569">腺體肥大+纖毛脫落</text>
+                
+                <line x1="620" y1="100" x2="680" y2="100" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-flow)"/>
+                
+                <rect x="680" y="80" width="140" height="40" rx="5" fill="#fee2e2" stroke="#dc2626"/>
+                <text x="750" y="105" text-anchor="middle" fill="#991b1b" font-weight="bold">多年咳痰</text>
+
+                <!-- Lower Path (Emphysema) -->
+                <rect x="260" y="280" width="140" height="40" rx="5" fill="#d1fae5" stroke="#059669"/>
+                <text x="330" y="305" text-anchor="middle" fill="#065f46" font-weight="bold">呼吸區病變</text>
+                
+                <line x1="400" y1="300" x2="460" y2="300" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-flow)"/>
+                
+                <rect x="460" y="280" width="160" height="40" rx="5" fill="#fff" stroke="#cbd5e1"/>
+                <text x="540" y="305" text-anchor="middle" fill="#475569">間隔斷裂+彈性喪失</text>
+                
+                <line x1="620" y1="300" x2="680" y2="300" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-flow)"/>
+                
+                <rect x="680" y="280" width="140" height="40" rx="5" fill="#fee2e2" stroke="#dc2626"/>
+                <text x="750" y="305" text-anchor="middle" fill="#991b1b" font-weight="bold">近期喘息</text>
+            </svg>
+        </div>
+        <div class="page-number">8 / 11</div>
+    </div>
+
+    <!-- Slide 9: Quiz 1 -->
+    <div class="slide">
+        <h2><i class="fa-solid fa-circle-question"></i> 隨堂測驗 Q1</h2>
+        <p class="card">李剛民先生「持續多年咳痰」的主要解剖病理原因是？</p>
+        
+        <div onclick="checkAnswer(this, false, 'explanation-1')" class="quiz-option">A. 肺泡間隔斷裂導致表面積下降</div>
+        <div onclick="checkAnswer(this, false, 'explanation-1')" class="quiz-option">B. 肺間質彈性纖維喪失</div>
+        <div onclick="checkAnswer(this, true, 'explanation-1')" class="quiz-option">C. 導氣區黏液腺肥大與纖毛脫落</div>
+        <div onclick="checkAnswer(this, false, 'explanation-1')" class="quiz-option">D. 肺部微血管床消失</div>
+
+        <div id="explanation-1" class="explanation">
+            <strong>正確答案：C</strong><br>
+            解析：咳痰源於「導氣區」的病變。腺體肥大 (Reid Index > 0.5) 造成分泌增加，纖毛化生脫落造成清除失敗。A、B、D 均為呼吸區病變，主要導致喘。
+        </div>
+        <div class="page-number">9 / 11</div>
+    </div>
+
+    <!-- Slide 10: Quiz 2 -->
+    <div class="slide">
+        <h2><i class="fa-solid fa-circle-question"></i> 隨堂測驗 Q2</h2>
+        <p class="card">關於李先生「近半年呼吸困難」的力學機制，下列何者正確？</p>
+        
+        <div onclick="checkAnswer(this, false, 'explanation-2')" class="quiz-option">A. 氣管軟骨增生導致吸氣阻力增加</div>
+        <div onclick="checkAnswer(this, true, 'explanation-2')" class="quiz-option">B. 徑向牽引力喪失，導致呼氣時氣道動態塌陷</div>
+        <div onclick="checkAnswer(this, false, 'explanation-2')" class="quiz-option">C. 橫膈膜位置上升，壓迫肺部</div>
+        <div onclick="checkAnswer(this, false, 'explanation-2')" class="quiz-option">D. 肺回縮力增加，導致肺容積縮小</div>
+
+        <div id="explanation-2" class="explanation">
+            <strong>正確答案：B</strong><br>
+            解析：COPD 的核心力學障礙是「彈性纖維破壞」。這導致徑向牽引力 (Radial Traction) 喪失，呼氣時氣道失去支撐而塌陷，造成氣體滯留 (Air Trapping) 與過度充氣 (Hyperinflation)。
+        </div>
+        <div class="page-number">10 / 11</div>
+    </div>
+
+    <!-- Slide 11: References (Full List) -->
+    <div class="slide">
+        <h2>參考文獻 (References)</h2>
+        <div class="card" style="background: #fff; border-left: 6px solid #64748b; height: 500px;">
+            <ul class="ref-list">
+                <li><strong>West, J.B. (2012).</strong> <em>Respiratory Physiology: The Essentials</em> (9th ed.). Lippincott Williams & Wilkins.</li>
+                <li><strong>West, J. B., & Luks, A. M. (2021).</strong> <em>West's Respiratory Physiology: The Essentials</em> (11th ed.). Wolters Kluwer. (Chapter 1, 3, 7).</li>
+                <li><strong>Inal-Ince, D., & Cakmak, A. (2020).</strong> Chapter 19 - Kinesiology of respiration. In <em>Comparative kinesiology of the human body</em> (pp. 353–363). Academic Press.</li>
+                <li><strong>Ochs, M., et al. (2004).</strong> The number of alveoli in the human lung. <em>American Journal of Respiratory and Critical Care Medicine</em>, 169(1), 120-124.</li>
+                <li><strong>Mescher, A. L. (2021).</strong> <em>Junqueira's Basic Histology: Text and Atlas</em> (16th ed.). McGraw-Hill. (Chapter 17: Respiratory System).</li>
+                <li><strong>Weibel, E.R. (2017).</strong> Lung morphometry: the link between structure and function. <em>Cell and Tissue Research</em>, 367(3), 413-426.</li>
+                <li><strong>Global Initiative for Chronic Obstructive Lung Disease (GOLD). (2024).</strong> <em>Global Strategy for the Diagnosis, Management, and Prevention of COPD</em>.</li>
+                <li><strong>Hogg, J.C., et al. (2004).</strong> The nature of small-airway obstruction in chronic obstructive pulmonary disease. <em>New England Journal of Medicine</em>, 350(26), 2645-2653.</li>
+                <li><strong>Kumar, V., Abbas, A. K., & Aster, J. C. (2020).</strong> <em>Robbins & Cotran Pathologic Basis of Disease</em> (10th ed.). Elsevier. (Chapter 15: The Lung)</li>
+                <li><strong>Wagner, P.D. (2015).</strong> The physiological basis of pulmonary gas exchange: implications for clinical interpretation of arterial blood gases. <em>European Respiratory Journal</em>, 45(1), 227-243.</li>
+            </ul>
+        </div>
+        <div class="page-number">11 / 11</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn" onclick="changeSlide(-1)" id="prevBtn">上一頁</button>
+        <button class="btn" onclick="changeSlide(1)" id="nextBtn">下一頁</button>
+    </div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    function showSlide(n) {
+        slides.forEach(s => s.classList.remove('active'));
+        
+        currentSlide = n;
+        if (currentSlide >= totalSlides) currentSlide = 0;
+        if (currentSlide < 0) currentSlide = totalSlides - 1;
+        
+        slides[currentSlide].classList.add('active');
+
+        // Update buttons
+        document.getElementById('prevBtn').disabled = currentSlide === 0;
+        document.getElementById('nextBtn').innerText = currentSlide === totalSlides - 1 ? "結束" : "下一頁";
+    }
+
+    function changeSlide(n) {
+        showSlide(currentSlide + n);
+    }
+
+    // Quiz Logic
+    function checkAnswer(element, isCorrect, explanationId) {
+        // Reset siblings
+        const parent = element.parentElement;
+        const siblings = parent.getElementsByClassName('quiz-option');
+        for (let s of siblings) {
+            s.classList.remove('correct', 'wrong');
+            s.style.pointerEvents = 'none'; // Disable click
+        }
+
+        if (isCorrect) {
+            element.classList.add('correct');
+        } else {
+            element.classList.add('wrong');
+        }
+        
+        document.getElementById(explanationId).style.display = 'block';
+    }
+
+    // Keyboard Control
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
+        if(e.key === 'ArrowLeft') changeSlide(-1);
+    });
+
+    // Init
+    showSlide(0);
+</script>
+
+</body>
+</html>
